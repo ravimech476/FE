@@ -15,6 +15,8 @@ import Dashboard from './components/Dashboard';
 import PrivateRoute from './components/PrivateRoute';
 import EmployeeModal from './components/EmployeeModal';
 import LeadersManagement from './components/LeadersManagement';
+import NewsManagement from './components/NewsManagement';
+import NewsDetailPage from './pages/NewsDetailPage';
 
 function App() {
   const [selectedEmployee, setSelectedEmployee] = useState(null);
@@ -34,6 +36,7 @@ function App() {
               <Route path="/company/:companyName" element={<CompanyPage />} />
               <Route path="/contact" element={<ContactPage />} />
               <Route path="/news" element={<NewsPage />} />
+              <Route path="/news/:id" element={<NewsDetailPage />} />
               
               {/* Protected Routes - Only for logged in employees */}
               <Route path="/dashboard" element={
@@ -56,6 +59,13 @@ function App() {
               <Route path="/leaders/manage" element={
                 <PrivateRoute adminOnly={true}>
                   <LeadersManagement />
+                </PrivateRoute>
+              } />
+              
+              {/* Admin Only - News Management */}
+              <Route path="/news/manage" element={
+                <PrivateRoute adminOnly={true}>
+                  <NewsManagement />
                 </PrivateRoute>
               } />
               

@@ -130,7 +130,6 @@ const LeadersManagement = () => {
                   <th>Name</th>
                   <th>Title</th>
                   <th>Status</th>
-                  <th>Order</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -160,7 +159,6 @@ const LeadersManagement = () => {
                         {leader.status}
                       </span>
                     </td>
-                    <td>{leader.display_order}</td>
                     <td className="actions-cell">
                       <button
                         className="btn-icon btn-edit"

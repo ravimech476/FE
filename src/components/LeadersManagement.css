@@ -233,6 +233,35 @@
   transition: border-color 0.3s ease;
 }
 
+.user-select-dropdown {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  background-color: #f8f9fa;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+}
+
+.user-select-dropdown:hover {
+  border-color: #ff6b35;
+}
+
+.user-select-dropdown:disabled {
+  background-color: #e9ecef;
+  cursor: not-allowed;
+}
+
+.user-error-message {
+  padding: 10px 15px;
+  background-color: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 6px;
+  color: #856404;
+  font-size: 0.9rem;
+}
+
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {

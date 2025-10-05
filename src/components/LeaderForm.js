@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import userService from '../services/userService';
 import './LeadersManagement.css';
 
 const LeaderForm = ({ leader, onSubmit, onCancel }) => {
@@ -11,11 +12,18 @@ const LeaderForm = ({ leader, onSubmit, onCancel }) => {
     status: 'active',
     image: null
   });
+  const [users, setUsers] = useState([]);
   const [imagePreview, setImagePreview] = useState(null);
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+  const [userError, setUserError] = useState(null);
 
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   useEffect(() => {
     if (leader) {
@@ -34,6 +42,32 @@ const LeaderForm = ({ leader, onSubmit, onCancel }) => {
     }
   }, [leader, API_URL]);
 
+  const fetchUsers = async () => {
+    try {
+      setLoadingUsers(true);
+      setUserError(null);
+      console.log('🔄 Fetching users...');
+      
+      const data = await userService.getAllUsers();
+      console.log('✅ Users fetched:', data);
+      console.log('📊 Number of users:', data?.length || 0);
+      
+      if (Array.isArray(data)) {
+        setUsers(data);
+        console.log('✅ Users set in state:', data.length);
+      } else {
+        console.error('❌ Data is not an array:', data);
+        setUserError('Invalid data format received');
+      }
+    } catch (err) {
+      console.error('❌ Error loading users:', err);
+      console.error('Error details:', err.response?.data || err.message);
+      setUserError(err.response?.data?.error || err.message || 'Failed to load users');
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -43,6 +77,24 @@ const LeaderForm = ({ leader, onSubmit, onCancel }) => {
     // Clear error for this field
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const handleUserSelect = (e) => {
+    const userId = e.target.value;
+    console.log('👤 User selected, ID:', userId);
+    
+    if (userId) {
+      const selectedUser = users.find(u => u.id === parseInt(userId));
+      console.log('👤 Found user:', selectedUser);
+      
+      if (selectedUser) {
+        setFormData(prev => ({
+          ...prev,
+          name: selectedUser.full_name
+        }));
+        console.log('✅ Name auto-filled:', selectedUser.full_name);
+      }
     }
   };
 
@@ -165,6 +217,47 @@ const LeaderForm = ({ leader, onSubmit, onCancel }) => {
             <small className="help-text">Max size: 5MB. Formats: JPG, PNG, GIF</small>
           </div>
 
+          {/* User Selection Dropdown */}
+          <div className="form-group full-width">
+            <label htmlFor="user-select">Select User (Optional)</label>
+            {userError ? (
+              <div className="user-error-message">
+                ⚠️ {userError}
+              </div>
+            ) : (
+              <select
+                id="user-select"
+                onChange={handleUserSelect}
+                disabled={loadingUsers}
+                className="user-select-dropdown"
+              >
+                <option value="">
+                  {loadingUsers 
+                    ? 'Loading users...' 
+                    : users.length === 0 
+                      ? 'No users available'
+                      : '-- Select a user to auto-fill name --'
+                  }
+                </option>
+                {users.map(user => (
+                  <option key={user.id} value={user.id}>
+                    {user.display_name}
+                  </option>
+                ))}
+              </select>
+            )}
+            <small className="help-text">
+              {loadingUsers 
+                ? 'Loading users...' 
+                : userError 
+                  ? 'Unable to load users. You can still enter name manually below.'
+                  : users.length > 0 
+                    ? `${users.length} users available - Select one or enter name manually below`
+                    : 'No users found. Enter name manually below.'
+              }
+            </small>
+          </div>
+
           {/* Name */}
           <div className="form-group">
             <label htmlFor="name">Name *</label>
@@ -208,20 +301,6 @@ const LeaderForm = ({ leader, onSubmit, onCancel }) => {
               maxLength="10"
             />
             <small className="help-text">Used as fallback if no image</small>
-          </div>
-
-          {/* Display Order */}
-          <div className="form-group">
-            <label htmlFor="display_order">Display Order</label>
-            <input
-              type="number"
-              id="display_order"
-              name="display_order"
-              value={formData.display_order}
-              onChange={handleChange}
-              min="0"
-            />
-            <small className="help-text">Lower numbers appear first</small>
           </div>
 
           {/* Status */}

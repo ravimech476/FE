@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import leaderService from '../services/leaderService';
 import LeaderForm from './LeaderForm';
+import { API_BASE_URL } from '../services/api';
 import './LeadersManagement.css';
 
 const LeadersManagement = () => {
@@ -11,8 +12,6 @@ const LeadersManagement = () => {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
-
-  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
   useEffect(() => {
     fetchLeaders();
@@ -139,7 +138,7 @@ const LeadersManagement = () => {
                     <td>
                       {leader.image ? (
                         <img
-                          src={`${API_URL}${leader.image}`}
+                          src={`${API_BASE_URL}${leader.image}`}
                           alt={leader.name}
                           className="table-leader-image"
                           onError={(e) => {

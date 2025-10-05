@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import userService from '../services/userService';
+import { API_BASE_URL } from '../services/api';
 import './LeadersManagement.css';
 
 const LeaderForm = ({ leader, onSubmit, onCancel }) => {
@@ -17,9 +18,6 @@ const LeaderForm = ({ leader, onSubmit, onCancel }) => {
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [loadingUsers, setLoadingUsers] = useState(false);
-  const [userError, setUserError] = useState(null);
-
-  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
   useEffect(() => {
     fetchUsers();
@@ -37,32 +35,26 @@ const LeaderForm = ({ leader, onSubmit, onCancel }) => {
         image: null
       });
       if (leader.image) {
-        setImagePreview(`${API_URL}${leader.image}`);
+        setImagePreview(`${API_BASE_URL}${leader.image}`);
       }
     }
-  }, [leader, API_URL]);
+  }, [leader]);
 
   const fetchUsers = async () => {
     try {
       setLoadingUsers(true);
-      setUserError(null);
-      console.log('🔄 Fetching users...');
+      console.log('🔄 Fetching users for dropdown...');
       
       const data = await userService.getAllUsers();
       console.log('✅ Users fetched:', data);
-      console.log('📊 Number of users:', data?.length || 0);
       
       if (Array.isArray(data)) {
         setUsers(data);
-        console.log('✅ Users set in state:', data.length);
-      } else {
-        console.error('❌ Data is not an array:', data);
-        setUserError('Invalid data format received');
+        console.log('✅ Users loaded for datalist:', data.length);
       }
     } catch (err) {
       console.error('❌ Error loading users:', err);
-      console.error('Error details:', err.response?.data || err.message);
-      setUserError(err.response?.data?.error || err.message || 'Failed to load users');
+      // Continue anyway - user can still type manually
     } finally {
       setLoadingUsers(false);
     }
@@ -77,24 +69,6 @@ const LeaderForm = ({ leader, onSubmit, onCancel }) => {
     // Clear error for this field
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
-    }
-  };
-
-  const handleUserSelect = (e) => {
-    const userId = e.target.value;
-    console.log('👤 User selected, ID:', userId);
-    
-    if (userId) {
-      const selectedUser = users.find(u => u.id === parseInt(userId));
-      console.log('👤 Found user:', selectedUser);
-      
-      if (selectedUser) {
-        setFormData(prev => ({
-          ...prev,
-          name: selectedUser.full_name
-        }));
-        console.log('✅ Name auto-filled:', selectedUser.full_name);
-      }
     }
   };
 
@@ -140,7 +114,7 @@ const LeaderForm = ({ leader, onSubmit, onCancel }) => {
     setImagePreview(null);
     // If editing, keep the existing image preview if available
     if (leader && leader.image) {
-      setImagePreview(`${API_URL}${leader.image}`);
+      setImagePreview(`${API_BASE_URL}${leader.image}`);
     }
   };
 
@@ -217,48 +191,7 @@ const LeaderForm = ({ leader, onSubmit, onCancel }) => {
             <small className="help-text">Max size: 5MB. Formats: JPG, PNG, GIF</small>
           </div>
 
-          {/* User Selection Dropdown */}
-          <div className="form-group full-width">
-            <label htmlFor="user-select">Select User (Optional)</label>
-            {userError ? (
-              <div className="user-error-message">
-                ⚠️ {userError}
-              </div>
-            ) : (
-              <select
-                id="user-select"
-                onChange={handleUserSelect}
-                disabled={loadingUsers}
-                className="user-select-dropdown"
-              >
-                <option value="">
-                  {loadingUsers 
-                    ? 'Loading users...' 
-                    : users.length === 0 
-                      ? 'No users available'
-                      : '-- Select a user to auto-fill name --'
-                  }
-                </option>
-                {users.map(user => (
-                  <option key={user.id} value={user.id}>
-                    {user.display_name}
-                  </option>
-                ))}
-              </select>
-            )}
-            <small className="help-text">
-              {loadingUsers 
-                ? 'Loading users...' 
-                : userError 
-                  ? 'Unable to load users. You can still enter name manually below.'
-                  : users.length > 0 
-                    ? `${users.length} users available - Select one or enter name manually below`
-                    : 'No users found. Enter name manually below.'
-              }
-            </small>
-          </div>
-
-          {/* Name */}
+          {/* Name - Combo Box (Dropdown + Text Input) */}
           <div className="form-group">
             <label htmlFor="name">Name *</label>
             <input
@@ -268,9 +201,26 @@ const LeaderForm = ({ leader, onSubmit, onCancel }) => {
               value={formData.name}
               onChange={handleChange}
               className={errors.name ? 'error' : ''}
-              placeholder="Enter leader's name"
+              placeholder="Select from list or type name"
+              list="users-datalist"
+              autoComplete="off"
             />
+            <datalist id="users-datalist">
+              {users.map(user => (
+                <option key={user.id} value={user.full_name}>
+                  {user.display_name}
+                </option>
+              ))}
+            </datalist>
             {errors.name && <span className="error-text">{errors.name}</span>}
+            <small className="help-text">
+              {loadingUsers 
+                ? 'Loading users...' 
+                : users.length > 0 
+                  ? `Type or select from ${users.length} users`
+                  : 'Enter leader\'s name'
+              }
+            </small>
           </div>
 
           {/* Title */}

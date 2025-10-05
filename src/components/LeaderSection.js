@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import leaderService from '../services/leaderService';
+import { API_BASE_URL } from '../services/api';
 import './LeaderSection.css';
 
 const LeaderSection = () => {
   const [leaders, setLeaders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
   useEffect(() => {
     fetchLeaders();
@@ -58,15 +57,25 @@ const LeaderSection = () => {
     <section className="leader-section">
       <h2 className="section-title text-orange">Meet our leaders</h2>
       <div className="leaders-grid">
-        {leaders.map(leader => (
+        {leaders.map(leader => {
+          const imageUrl = leader.image ? `${API_BASE_URL}${leader.image}` : null;
+          console.log('Leader:', leader.name);
+          console.log('Image path from DB:', leader.image);
+          console.log('Full image URL:', imageUrl);
+          
+          return (
           <div key={leader.id} className="leader-card">
             {leader.image ? (
               <img 
-                src={`${API_URL}${leader.image}`} 
+                src={imageUrl}
                 alt={leader.name} 
                 className="leader-image" 
                 onError={(e) => {
+                  console.error('Image failed to load:', imageUrl);
                   e.target.src = 'https://i.pravatar.cc/150?img=33';
+                }}
+                onLoad={() => {
+                  console.log('✅ Image loaded successfully:', imageUrl);
                 }}
               />
             ) : (
@@ -80,7 +89,7 @@ const LeaderSection = () => {
               <p className="leader-description">{leader.description}</p>
             )}
           </div>
-        ))}
+        )})}
       </div>
     </section>
   );

@@ -1,6 +1,4 @@
-import api from './api';
-
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+import api, { API_BASE_URL } from './api';
 
 const leaderService = {
     // Public - Get all active leaders
@@ -64,7 +62,7 @@ const leaderService = {
             }
 
             const token = localStorage.getItem('token');
-            const response = await fetch(`${API_URL}/api/leaders`, {
+            const response = await fetch(`${API_BASE_URL}/api/leaders`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -112,7 +110,7 @@ const leaderService = {
             }
 
             const token = localStorage.getItem('token');
-            const response = await fetch(`${API_URL}/api/leaders/${id}`, {
+            const response = await fetch(`${API_BASE_URL}/api/leaders/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`

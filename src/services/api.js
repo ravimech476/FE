@@ -1,5 +1,6 @@
 // API service that works in browser environment with better error handling
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const API_URL = `${API_BASE_URL}/api`;
 
 class ApiClient {
     constructor() {
@@ -100,3 +101,4 @@ class ApiClient {
 
 const api = new ApiClient();
 export default api;
+export { API_BASE_URL }; // Export for use in components that need server URL (like for images)

@@ -64,6 +64,12 @@ const Header = () => {
                                     >
                                         <span>📰</span> Company News
                                     </Link>
+                                    <Link 
+                                        to="/dashboards/manage"
+                                        className={`nav-link ${isActive('/dashboards/manage')}`}
+                                    >
+                                        <span>📊</span> Manage Dashboards
+                                    </Link>
                                 </>
                             )}
                         </>

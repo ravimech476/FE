@@ -177,6 +177,22 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  padding: 8px;
+  border-radius: 6px;
+  transition: background 0.2s ease;
+}
+
+.online-member:hover {
+  background: #f8f9fa;
+}
+
+.online-member.birthday-today {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+}
+
+.online-member.birthday-today:hover {
+  background: #ffe69c;
 }
 
 .online-avatar {
@@ -196,6 +212,13 @@
   margin: 2px 0 0 0;
   font-size: 0.8rem;
   color: #666;
+}
+
+.no-birthdays {
+  text-align: center;
+  color: #999;
+  font-style: italic;
+  padding: 20px;
 }
 
 @media (max-width: 992px) {

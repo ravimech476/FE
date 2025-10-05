@@ -1,9 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import userService from '../services/userService';
 import './SocialCorner.css';
 
 const SocialCorner = () => {
   const [activeTab, setActiveTab] = useState('members');
   const [message, setMessage] = useState('');
+  const [upcomingBirthdays, setUpcomingBirthdays] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    loadBirthdays();
+  }, []);
+  
+  const loadBirthdays = async () => {
+    try {
+      setLoading(true);
+      const response = await userService.getUpcomingBirthdays(30);
+      setUpcomingBirthdays(response.birthdays || []);
+    } catch (error) {
+      console.error('Failed to load birthdays:', error);
+      setUpcomingBirthdays([]);
+    } finally {
+      setLoading(false);
+    }
+  };
   
   const members = [
     { name: 'Finance', avatar: '👤', status: 'online' },
@@ -15,13 +35,13 @@ const SocialCorner = () => {
     { name: 'Shankar', avatar: '👤', status: 'online' },
   ];
 
-  const onlineMembers = [
-    { name: 'Anne Smith', role: 'Birthday today', avatar: 'https://i.pravatar.cc/40?img=1' },
-    { name: 'Beth Carlson', role: 'Birthday on March 1,2023', avatar: 'https://i.pravatar.cc/40?img=5' },
-    { name: 'Jason Salah', role: 'Birthday on April 19,2023', avatar: 'https://i.pravatar.cc/40?img=3' },
-    { name: 'Liza McDonald', role: 'Birthday on April 21,2023', avatar: 'https://i.pravatar.cc/40?img=9' },
-    { name: 'Akash Patel', role: 'Birthday on May 1,2023', avatar: 'https://i.pravatar.cc/40?img=8' },
-  ];
+  const onlineMembers = upcomingBirthdays.map(user => ({
+    id: user.id,
+    name: user.full_name,
+    role: user.birthday_message,
+    avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(user.full_name)}&background=random`,
+    isToday: user.is_today
+  }));
 
   const messages = [
     { sender: 'other', text: 'Hello, everyone!', time: '10:25am' },
@@ -83,18 +103,24 @@ const SocialCorner = () => {
         </div>
         
         <div className="social-right">
-          <h3>Online</h3>
-          <div className="online-list">
-            {onlineMembers.map((member, index) => (
-              <div key={index} className="online-member">
-                <img src={member.avatar} alt={member.name} className="online-avatar" />
-                <div className="online-info">
-                  <h4>{member.name}</h4>
-                  <p>{member.role}</p>
+          <h3>Upcoming Birthdays 🎂</h3>
+          {loading ? (
+            <p>Loading birthdays...</p>
+          ) : onlineMembers.length > 0 ? (
+            <div className="online-list">
+              {onlineMembers.map((member) => (
+                <div key={member.id} className={`online-member ${member.isToday ? 'birthday-today' : ''}`}>
+                  <img src={member.avatar} alt={member.name} className="online-avatar" />
+                  <div className="online-info">
+                    <h4>{member.name} {member.isToday && '🎉'}</h4>
+                    <p>{member.role}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <p className="no-birthdays">No upcoming birthdays in the next 30 days</p>
+          )}
         </div>
       </div>
     </section>

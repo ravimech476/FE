@@ -171,29 +171,16 @@ const DashboardManagement = () => {
                 />
               </div>
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Display Order</label>
-                  <input
-                    type="number"
-                    name="display_order"
-                    value={formData.display_order}
-                    onChange={handleInputChange}
-                    min="0"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Status</label>
-                  <select
-                    name="status"
-                    value={formData.status}
-                    onChange={handleInputChange}
-                  >
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                  </select>
-                </div>
+              <div className="form-group">
+                <label>Status</label>
+                <select
+                  name="status"
+                  value={formData.status}
+                  onChange={handleInputChange}
+                >
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
               </div>
 
               <div className="form-actions">
@@ -214,7 +201,6 @@ const DashboardManagement = () => {
             <table className="dashboards-table">
               <thead>
                 <tr>
-                  <th>Order</th>
                   <th>Title</th>
                   <th>Description</th>
                   <th>URL</th>
@@ -225,7 +211,6 @@ const DashboardManagement = () => {
               <tbody>
                 {dashboards.map((dashboard) => (
                   <tr key={dashboard.id}>
-                    <td>{dashboard.display_order}</td>
                     <td><strong>{dashboard.title}</strong></td>
                     <td className="description-cell">{dashboard.description}</td>
                     <td>
@@ -238,15 +223,21 @@ const DashboardManagement = () => {
                         {dashboard.status}
                       </span>
                     </td>
-                    <td>
-                      <div className="action-buttons">
-                        <button onClick={() => handleEdit(dashboard)} className="btn-edit">
-                          Edit
-                        </button>
-                        <button onClick={() => handleDelete(dashboard.id)} className="btn-delete">
-                          Delete
-                        </button>
-                      </div>
+                    <td className="actions-cell">
+                      <button
+                        className="btn-icon btn-edit"
+                        onClick={() => handleEdit(dashboard)}
+                        title="Edit"
+                      >
+                        ✏️
+                      </button>
+                      <button
+                        className="btn-icon btn-delete"
+                        onClick={() => handleDelete(dashboard.id)}
+                        title="Delete"
+                      >
+                        🗑️
+                      </button>
                     </td>
                   </tr>
                 ))}

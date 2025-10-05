@@ -66,13 +66,17 @@ const DashboardLinksPage = () => {
                 className="dashboard-card"
                 onClick={() => handleLinkClick(link.url)}
               >
-                <div className="dashboard-card-content">
+                <div className="dashboard-card-left">
+                  <div className="dashboard-icon">
+                    {link.title === 'Reporting' && '📝'}
+                    {link.title === 'Dashboard' && '📊'}
+                    {link.title === 'Analytics' && '📊'}
+                    {link.title === 'Development' && '💻'}
+                    {!['Reporting', 'Dashboard', 'Analytics', 'Development'].includes(link.title) && '📄'}
+                  </div>
                   <h3 className="dashboard-title">{link.title}</h3>
-                  <p className="dashboard-description">{link.description}</p>
-                  <button className="dashboard-open-btn">
-                    Open Dashboard →
-                  </button>
                 </div>
+                <p className="dashboard-description">{link.description}</p>
               </div>
             ))}
           </div>

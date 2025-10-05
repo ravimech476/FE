@@ -18,12 +18,50 @@ const blogService = {
     },
 
     createPost: async (postData) => {
-        const response = await api.post('/blog/posts', postData);
+        // Convert to FormData for file upload
+        const formData = new FormData();
+        
+        // Append text fields
+        if (postData.title) formData.append('title', postData.title);
+        if (postData.content) formData.append('content', postData.content);
+        if (postData.excerpt) formData.append('excerpt', postData.excerpt);
+        if (postData.status) formData.append('status', postData.status);
+        
+        // Handle categories array
+        if (postData.categories && Array.isArray(postData.categories)) {
+            formData.append('categories', JSON.stringify(postData.categories));
+        }
+        
+        // Handle image file
+        if (postData.image && postData.image instanceof File) {
+            formData.append('image', postData.image);
+        }
+        
+        const response = await api.post('/blog/posts', formData);
         return response.data;
     },
 
     updatePost: async (id, postData) => {
-        const response = await api.put(`/blog/posts/${id}`, postData);
+        // Convert to FormData for file upload
+        const formData = new FormData();
+        
+        // Append text fields
+        if (postData.title) formData.append('title', postData.title);
+        if (postData.content) formData.append('content', postData.content);
+        if (postData.excerpt) formData.append('excerpt', postData.excerpt);
+        if (postData.status) formData.append('status', postData.status);
+        
+        // Handle categories array
+        if (postData.categories && Array.isArray(postData.categories)) {
+            formData.append('categories', JSON.stringify(postData.categories));
+        }
+        
+        // Handle image file
+        if (postData.image && postData.image instanceof File) {
+            formData.append('image', postData.image);
+        }
+        
+        const response = await api.put(`/blog/posts/${id}`, formData);
         return response.data;
     },
 

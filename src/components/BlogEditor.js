@@ -16,9 +16,11 @@ const BlogEditor = () => {
         content: '',
         excerpt: '',
         featured_image: '',
+        image: null,
         status: 'draft',
         categories: []
     });
+    const [imagePreview, setImagePreview] = useState(null);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
@@ -49,16 +51,24 @@ const BlogEditor = () => {
                 return;
             }
             
+            // Set form data with category IDs from the post
             setFormData({
                 title: post.title || '',
                 content: post.content || '',
                 excerpt: post.excerpt || '',
                 featured_image: post.featured_image || '',
+                image: null,
                 status: post.status || 'draft',
-                categories: []
+                categories: post.category_ids || [] // Use category_ids from backend
             });
+            
+            // Set image preview if exists
+            if (post.featured_image) {
+                setImagePreview(`http://localhost:5000${post.featured_image}`);
+            }
         } catch (err) {
             setError('Failed to load post');
+            console.error('Load post error:', err);
         } finally {
             setLoading(false);
         }
@@ -71,6 +81,45 @@ const BlogEditor = () => {
             [name]: value
         }));
         setError('');
+    };
+    
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                setError('Please select an image file');
+                return;
+            }
+            
+            // Validate file size (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                setError('Image size should be less than 5MB');
+                return;
+            }
+
+            setFormData(prev => ({
+                ...prev,
+                image: file
+            }));
+
+            // Create preview
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreview(reader.result);
+            };
+            reader.readAsDataURL(file);
+            
+            setError('');
+        }
+    };
+    
+    const removeImage = () => {
+        setFormData(prev => ({
+            ...prev,
+            image: null
+        }));
+        setImagePreview(null);
     };
 
     const handleSubmit = async (status = 'draft') => {
@@ -180,19 +229,36 @@ const BlogEditor = () => {
                     <div className="editor-sidebar">
                         <div className="sidebar-section">
                             <h3>Featured Image</h3>
-                            <input
-                                type="url"
-                                name="featured_image"
-                                value={formData.featured_image}
-                                onChange={handleChange}
-                                placeholder="Image URL (optional)"
-                                className="input-field"
-                            />
-                            {formData.featured_image && (
-                                <div className="image-preview">
-                                    <img src={formData.featured_image} alt="Preview" />
-                                </div>
-                            )}
+                            <div className="image-upload-container">
+                                {imagePreview ? (
+                                    <div className="image-preview-wrapper">
+                                        <img src={imagePreview} alt="Preview" className="image-preview" />
+                                        <button
+                                            type="button"
+                                            className="btn-remove-image"
+                                            onClick={removeImage}
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="image-placeholder">
+                                        <span>📷</span>
+                                        <p>No image selected</p>
+                                    </div>
+                                )}
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImageChange}
+                                    className="file-input"
+                                    id="featured-image-input"
+                                />
+                                <label htmlFor="featured-image-input" className="file-input-label">
+                                    {imagePreview ? 'Change Image' : 'Choose Image'}
+                                </label>
+                            </div>
+                            <small className="help-text">Max size: 5MB. Formats: JPG, PNG, GIF</small>
                         </div>
 
                         <div className="sidebar-section">

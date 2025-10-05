@@ -14,14 +14,22 @@ class ApiClient {
 
     async request(endpoint, options = {}) {
         const url = `${this.baseURL}${endpoint}`;
+        const isFormData = options.body instanceof FormData;
+        
+        // Build headers - don't set Content-Type for FormData (let browser handle it)
+        const headers = {
+            ...this.getAuthHeader(),
+            ...options.headers,
+        };
+        
+        // Only add Content-Type for non-FormData requests
+        if (!isFormData && !headers['Content-Type']) {
+            headers['Content-Type'] = 'application/json';
+        }
         
         const config = {
             ...options,
-            headers: {
-                'Content-Type': 'application/json',
-                ...this.getAuthHeader(),
-                ...options.headers,
-            },
+            headers,
         };
 
         try {
@@ -78,17 +86,19 @@ class ApiClient {
         return this.request(url, { method: 'GET' });
     }
 
-    async post(endpoint, data = {}) {
+    async post(endpoint, data = {}, config = {}) {
         return this.request(endpoint, {
             method: 'POST',
-            body: JSON.stringify(data),
+            body: data instanceof FormData ? data : JSON.stringify(data),
+            ...config
         });
     }
 
-    async put(endpoint, data = {}) {
+    async put(endpoint, data = {}, config = {}) {
         return this.request(endpoint, {
             method: 'PUT',
-            body: JSON.stringify(data),
+            body: data instanceof FormData ? data : JSON.stringify(data),
+            ...config
         });
     }
 

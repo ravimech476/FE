@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 import { AuthProvider } from './contexts/AuthContext';
+import { SocketProvider } from './contexts/SocketContext';
 import Header from './components/Header';
 import HomePage from './pages/HomePage';
 import CompanyPage from './pages/CompanyPage';
@@ -23,7 +24,8 @@ function App() {
 
   return (
     <AuthProvider>
-      <Router>
+      <SocketProvider>
+        <Router>
         <div className="App">
           <Header />
           <div className="app-content">
@@ -83,7 +85,8 @@ function App() {
           )}
         </div>
       </Router>
-    </AuthProvider>
+        </SocketProvider>
+        </AuthProvider>
   );
 }
 

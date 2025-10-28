@@ -5,7 +5,8 @@ import './DashboardLinksPage.css';
 
 const DashboardLinksPage = () => {
   const navigate = useNavigate();
-  const [links, setLinks] = useState([]);
+  const [categoriesData, setCategoriesData] = useState([]);
+  const [expandedCategories, setExpandedCategories] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -16,14 +17,21 @@ const DashboardLinksPage = () => {
   const loadDashboardLinks = async () => {
     try {
       setLoading(true);
-      const response = await dashboardService.getAllLinks();
-      setLinks(response.links || []);
+      const response = await dashboardService.getLinksByCategory();
+      setCategoriesData(response.data || []);
     } catch (err) {
       console.error('Failed to load dashboard links:', err);
       setError('Failed to load dashboard links');
     } finally {
       setLoading(false);
     }
+  };
+
+  const toggleCategory = (categoryId) => {
+    setExpandedCategories(prev => ({
+      ...prev,
+      [categoryId]: !prev[categoryId]
+    }));
   };
 
   const handleLinkClick = (url) => {
@@ -58,25 +66,58 @@ const DashboardLinksPage = () => {
           </div>
         )}
 
-        {links.length > 0 ? (
-          <div className="dashboards-grid">
-            {links.map((link) => (
-              <div 
-                key={link.id} 
-                className="dashboard-card"
-                onClick={() => handleLinkClick(link.url)}
-              >
-                <div className="dashboard-card-left">
-                  <div className="dashboard-icon">
-                    {link.title === 'Reporting' && '📝'}
-                    {link.title === 'Dashboard' && '📊'}
-                    {link.title === 'Analytics' && '📊'}
-                    {link.title === 'Development' && '💻'}
-                    {!['Reporting', 'Dashboard', 'Analytics', 'Development'].includes(link.title) && '📄'}
+        {categoriesData.length > 0 ? (
+          <div className="categories-container">
+            {categoriesData.map((category) => (
+              <div key={category.category_id} className="category-section">
+                {/* Category Header - Clickable to expand/collapse */}
+                <div 
+                  className={`category-header ${expandedCategories[category.category_id] ? 'expanded' : ''}`}
+                  onClick={() => toggleCategory(category.category_id)}
+                >
+                  <div className="category-header-left">
+                    <span className="category-icon">📁</span>
+                    <h2 className="category-title">{category.category_name}</h2>
                   </div>
-                  <h3 className="dashboard-title">{link.title}</h3>
+                  <span className="expand-icon">
+                    {expandedCategories[category.category_id] ? '▼' : '▶'}
+                  </span>
                 </div>
-                <p className="dashboard-description">{link.description}</p>
+
+                {/* Subcategories - Show when category is expanded */}
+                {expandedCategories[category.category_id] && (
+                  <div className="subcategories-container">
+                    {category.subcategories && category.subcategories.length > 0 ? (
+                      <div className="subcategories-grid">
+                        {category.subcategories.map((subcategory) => (
+                          subcategory.links && subcategory.links.length > 0 && subcategory.links.map((link) => (
+                            <div 
+                              key={link.id}
+                              className="subcategory-card"
+                              onClick={() => handleLinkClick(link.url)}
+                            >
+                              <div className="subcategory-header">
+                                <span className="subcategory-icon">📄</span>
+                                <h3 className="subcategory-title">{subcategory.subcategory_name}</h3>
+                              </div>
+                              <div className="subcategory-content">
+                                <p className="link-title">{link.title}</p>
+                                {link.description && (
+                                  <p className="link-description">{link.description}</p>
+                                )}
+                              </div>
+                              <div className="subcategory-footer">
+                                <span className="open-link">Open Link →</span>
+                              </div>
+                            </div>
+                          ))
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="no-subcategories">No links available in this category</p>
+                    )}
+                  </div>
+                )}
               </div>
             ))}
           </div>

@@ -1,6 +1,18 @@
 import api from './api';
 
 const subCategoryService = {
+    // Get all subcategories or filter by category (public - no auth required)
+    getAllPublic: async (categoryId = null) => {
+        try {
+            const url = categoryId ? `/subcategories/public?category_id=${categoryId}` : '/subcategories/public';
+            const response = await api.get(url);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching subcategories:', error);
+            throw error;
+        }
+    },
+
     // Get all subcategories or filter by category
     getAll: async (categoryId = null) => {
         try {

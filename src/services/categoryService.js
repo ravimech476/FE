@@ -1,6 +1,17 @@
 import api from './api';
 
 const categoryService = {
+    // Get all categories (public - no auth required)
+    getAllPublic: async () => {
+        try {
+            const response = await api.get('/categories/public');
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+            throw error;
+        }
+    },
+
     // Get all categories
     getAll: async () => {
         try {

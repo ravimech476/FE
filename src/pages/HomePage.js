@@ -2,6 +2,7 @@ import React from 'react';
 import HeroSection from '../components/HeroSection';
 import LeaderSection from '../components/LeaderSection';
 import NewsSection from '../components/NewsSection';
+import BusinessNewsSection from '../components/BusinessNewsSection';
 import EventsSection from '../components/EventsSection';
 import SocialCorner from '../components/SocialCorner';
 import CompaniesSection from '../components/CompaniesSection';
@@ -19,12 +20,15 @@ const HomePage = ({ setSelectedEmployee }) => {
         <div className="main-content-grid">
           <div className="left-column">
             <NewsSection />
-            <SocialCorner />
           </div>
           
           <div className="right-column">
-            <EventsSection />
+            <BusinessNewsSection />
           </div>
+        </div>
+        
+        <div className="events-section-full">
+          <EventsSection />
         </div>
         
         {/* <CompaniesSection /> */}

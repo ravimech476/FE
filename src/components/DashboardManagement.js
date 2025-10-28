@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import dashboardService from '../services/dashboardService';
+import categoryService from '../services/categoryService';
+import subCategoryService from '../services/subCategoryService';
 import './DashboardManagement.css';
 
 const DashboardManagement = () => {
   const { user } = useAuth();
   const [dashboards, setDashboards] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [subCategories, setSubCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingDashboard, setEditingDashboard] = useState(null);
@@ -13,6 +17,8 @@ const DashboardManagement = () => {
     title: '',
     description: '',
     url: '',
+    category_id: '',
+    subcategory_id: '',
     display_order: 0,
     status: 'active'
   });
@@ -22,8 +28,19 @@ const DashboardManagement = () => {
   useEffect(() => {
     if (user && user.role === 'admin') {
       loadDashboards();
+      loadCategories();
     }
   }, [user]);
+
+  // Load subcategories when category changes
+  useEffect(() => {
+    if (formData.category_id) {
+      loadSubCategories(formData.category_id);
+    } else {
+      setSubCategories([]);
+      setFormData(prev => ({ ...prev, subcategory_id: '' }));
+    }
+  }, [formData.category_id]);
 
   const loadDashboards = async () => {
     try {
@@ -38,11 +55,39 @@ const DashboardManagement = () => {
     }
   };
 
+  const loadCategories = async () => {
+    try {
+      const data = await categoryService.getAll();
+      setCategories(data);
+    } catch (err) {
+      console.error('Failed to load categories:', err);
+    }
+  };
+
+  const loadSubCategories = async (categoryId) => {
+    try {
+      const data = await subCategoryService.getAll(categoryId);
+      setSubCategories(data);
+    } catch (err) {
+      console.error('Failed to load subcategories:', err);
+    }
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
+    }));
+    setError('');
+  };
+
+  const handleCategoryChange = (e) => {
+    const categoryId = e.target.value;
+    setFormData(prev => ({
+      ...prev,
+      category_id: categoryId,
+      subcategory_id: '' // Reset subcategory when category changes
     }));
     setError('');
   };
@@ -56,11 +101,17 @@ const DashboardManagement = () => {
     }
 
     try {
+      const submitData = {
+        ...formData,
+        category_id: formData.category_id ? parseInt(formData.category_id) : null,
+        subcategory_id: formData.subcategory_id ? parseInt(formData.subcategory_id) : null
+      };
+
       if (editingDashboard) {
-        await dashboardService.updateLink(editingDashboard.id, formData);
+        await dashboardService.updateLink(editingDashboard.id, submitData);
         setSuccess('Dashboard link updated successfully');
       } else {
-        await dashboardService.createLink(formData);
+        await dashboardService.createLink(submitData);
         setSuccess('Dashboard link created successfully');
       }
       
@@ -79,10 +130,17 @@ const DashboardManagement = () => {
       title: dashboard.title,
       description: dashboard.description || '',
       url: dashboard.url,
+      category_id: dashboard.category_id || '',
+      subcategory_id: dashboard.subcategory_id || '',
       display_order: dashboard.display_order || 0,
       status: dashboard.status
     });
     setShowForm(true);
+    
+    // Load subcategories for the selected category
+    if (dashboard.category_id) {
+      loadSubCategories(dashboard.category_id);
+    }
   };
 
   const handleDelete = async (id) => {
@@ -105,11 +163,14 @@ const DashboardManagement = () => {
       title: '',
       description: '',
       url: '',
+      category_id: '',
+      subcategory_id: '',
       display_order: 0,
       status: 'active'
     });
     setEditingDashboard(null);
     setShowForm(false);
+    setSubCategories([]);
     setError('');
   };
 
@@ -136,6 +197,44 @@ const DashboardManagement = () => {
           <div className="dashboard-form-container">
             <h2>{editingDashboard ? 'Edit Dashboard Link' : 'Add New Dashboard Link'}</h2>
             <form onSubmit={handleSubmit} className="dashboard-form">
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Category</label>
+                  <select
+                    name="category_id"
+                    value={formData.category_id}
+                    onChange={handleCategoryChange}
+                  >
+                    <option value="">Select Category (Optional)</option>
+                    {categories.map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label>SubCategory</label>
+                  <select
+                    name="subcategory_id"
+                    value={formData.subcategory_id}
+                    onChange={handleInputChange}
+                    disabled={!formData.category_id}
+                  >
+                    <option value="">Select SubCategory (Optional)</option>
+                    {subCategories.map((subCat) => (
+                      <option key={subCat.id} value={subCat.id}>
+                        {subCat.name}
+                      </option>
+                    ))}
+                  </select>
+                  {!formData.category_id && (
+                    <small className="help-text">Select a category first</small>
+                  )}
+                </div>
+              </div>
+
               <div className="form-group">
                 <label>Title *</label>
                 <input
@@ -172,6 +271,17 @@ const DashboardManagement = () => {
               </div>
 
               <div className="form-group">
+                <label>Display Order</label>
+                <input
+                  type="number"
+                  name="display_order"
+                  value={formData.display_order}
+                  onChange={handleInputChange}
+                  min="0"
+                />
+              </div>
+
+              <div className="form-group">
                 <label>Status</label>
                 <select
                   name="status"
@@ -201,6 +311,8 @@ const DashboardManagement = () => {
             <table className="dashboards-table">
               <thead>
                 <tr>
+                  <th>Category</th>
+                  <th>SubCategory</th>
                   <th>Title</th>
                   <th>Description</th>
                   <th>URL</th>
@@ -211,11 +323,25 @@ const DashboardManagement = () => {
               <tbody>
                 {dashboards.map((dashboard) => (
                   <tr key={dashboard.id}>
+                    <td>
+                      {dashboard.category_name ? (
+                        <span className="badge badge-category">{dashboard.category_name}</span>
+                      ) : (
+                        <span className="text-muted">-</span>
+                      )}
+                    </td>
+                    <td>
+                      {dashboard.subcategory_name ? (
+                        <span className="badge badge-subcategory">{dashboard.subcategory_name}</span>
+                      ) : (
+                        <span className="text-muted">-</span>
+                      )}
+                    </td>
                     <td><strong>{dashboard.title}</strong></td>
                     <td className="description-cell">{dashboard.description}</td>
                     <td>
                       <a href={dashboard.url} target="_blank" rel="noopener noreferrer" className="url-link">
-                        {dashboard.url.substring(0, 40)}...
+                        {dashboard.url.substring(0, 30)}...
                       </a>
                     </td>
                     <td>

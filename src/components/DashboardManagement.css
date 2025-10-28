@@ -71,6 +71,12 @@
   gap: 20px;
 }
 
+.help-text {
+  font-size: 0.85rem;
+  color: #6c757d;
+  margin-top: 4px;
+}
+
 .form-actions {
   display: flex;
   gap: 15px;
@@ -177,6 +183,29 @@
 .status-badge.inactive {
   background: #f8d7da;
   color: #721c24;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.badge-category {
+  background: #cfe2ff;
+  color: #084298;
+}
+
+.badge-subcategory {
+  background: #e7f1ff;
+  color: #0c63e4;
+}
+
+.text-muted {
+  color: #999;
+  font-style: italic;
 }
 
 .actions-cell {

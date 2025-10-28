@@ -71,6 +71,12 @@ const Header = () => {
                                         <span>💼</span> Business News
                                     </Link>
                                     <Link 
+                                        to="/categories/manage"
+                                        className={`nav-link ${isActive('/categories/manage')}`}
+                                    >
+                                        <span>📂</span> Categories
+                                    </Link>
+                                    <Link 
                                         to="/dashboards/manage"
                                         className={`nav-link ${isActive('/dashboards/manage')}`}
                                     >

@@ -23,6 +23,7 @@ import DashboardLinksPage from './pages/DashboardLinksPage';
 import HeroManagement from './components/HeroManagement';
 import BusinessNewsManagement from './components/BusinessNewsManagement';
 import BusinessNewsDetailPage from './pages/BusinessNewsDetailPage';
+import CategoryManagement from './components/CategoryManagement';
 
 function App() {
   const [selectedEmployee, setSelectedEmployee] = useState(null);
@@ -102,6 +103,13 @@ function App() {
               
               {/* Public - Business News Detail Page */}
               <Route path="/business-news/:id" element={<BusinessNewsDetailPage />} />
+              
+              {/* Admin Only - Category Management */}
+              <Route path="/categories/manage" element={
+                <PrivateRoute adminOnly={true}>
+                  <CategoryManagement />
+                </PrivateRoute>
+              } />
               
               {/* Redirect any unknown routes to home */}
               <Route path="*" element={<Navigate to="/" replace />} />

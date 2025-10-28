@@ -1,7 +1,7 @@
 .dashboards-page {
   min-height: 100vh;
   padding: 2rem 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #ffffff;
 }
 
 .dashboards-page .container {
@@ -19,7 +19,7 @@
 
 .back-btn {
   padding: 0.5rem 1rem;
-  background: rgba(255, 255, 255, 0.2);
+  background: #667eea;
   color: white;
   border: none;
   border-radius: 8px;
@@ -29,12 +29,12 @@
 }
 
 .back-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: #764ba2;
   transform: translateX(-5px);
 }
 
 .dashboards-header h1 {
-  color: white;
+  color: #333;
   font-size: 2rem;
   margin: 0;
 }

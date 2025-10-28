@@ -119,7 +119,7 @@ const BlogList = () => {
                     <p className="hero-subtitle">
                         Discover insights, share knowledge, and stay updated with our latest posts
                     </p>
-                    {isAuthenticated ? (
+                    {/* {isAuthenticated ? (
                         <Link to="/blog/new" className="create-post-hero-btn">
                             ✍️ Write a New Post
                         </Link>
@@ -127,7 +127,7 @@ const BlogList = () => {
                         <Link to="/login" className="create-post-hero-btn">
                             Login to Write a Post
                         </Link>
-                    )}
+                    )} */}
                 </div>
             </div>
 

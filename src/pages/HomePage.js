@@ -27,7 +27,7 @@ const HomePage = ({ setSelectedEmployee }) => {
           </div>
         </div>
         
-        <CompaniesSection />
+        {/* <CompaniesSection /> */}
         <DashboardLinks />
       </div>
     </div>

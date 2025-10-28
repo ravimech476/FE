@@ -9,6 +9,7 @@ const BusinessNewsSection = () => {
   const [newsItems, setNewsItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
     fetchBusinessNews();
@@ -18,8 +19,7 @@ const BusinessNewsSection = () => {
     try {
       setLoading(true);
       const data = await businessNewsService.getAll();
-      // Limit to 4 most recent business news items for the homepage
-      setNewsItems(data.slice(0, 4));
+      setNewsItems(data);
       setError(null);
     } catch (err) {
       console.error('Error loading business news:', err);
@@ -38,9 +38,17 @@ const BusinessNewsSection = () => {
     });
   };
 
-  const handleReadMore = (newsId) => {
+  const handleCardClick = (newsId) => {
     navigate(`/business-news/${newsId}`);
   };
+
+  const toggleExpand = () => {
+    setIsExpanded(!isExpanded);
+  };
+
+  // Show only 4 items initially, all items when expanded
+  const displayedNews = isExpanded ? newsItems : newsItems.slice(0, 4);
+  const hasMoreNews = newsItems.length > 4;
 
   if (loading) {
     return (
@@ -72,43 +80,54 @@ const BusinessNewsSection = () => {
   return (
     <section className="business-news-section">
       <h2 className="section-title text-blue">Business News</h2>
-      <div className="business-news-grid">
-        {newsItems.map(item => {
-          const imageUrl = item.image 
-            ? `${API_BASE_URL}${item.image}` 
-            : 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400&h=250&fit=crop';
-          
-          return (
-            <div key={item.id} className="business-news-card">
-              <div className="business-news-image-wrapper">
-                <img 
-                  src={imageUrl} 
-                  alt={item.title} 
-                  className="business-news-image"
-                  onError={(e) => {
-                    e.target.src = 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400&h=250&fit=crop';
-                  }}
-                />
-                <div className="business-news-overlay">
-                  <h3 className="business-news-title">{item.title}</h3>
-                  {item.excerpt && (
-                    <p className="business-news-excerpt">{item.excerpt}</p>
-                  )}
-                  {item.published_date && (
-                    <span className="business-news-date">{formatDate(item.published_date)}</span>
-                  )}
-                  <button 
-                    className="read-more-btn"
-                    onClick={() => handleReadMore(item.id)}
-                  >
-                    Read More
-                  </button>
+      <div className={`business-news-grid-container ${isExpanded ? 'expanded' : ''}`}>
+        <div className="business-news-grid">
+          {displayedNews.map(item => {
+            const imageUrl = item.image 
+              ? `${API_BASE_URL}${item.image}` 
+              : 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400&h=250&fit=crop';
+            
+            return (
+              <div 
+                key={item.id} 
+                className="business-news-card"
+                onClick={() => handleCardClick(item.id)}
+              >
+                <div className="business-news-image-wrapper">
+                  <img 
+                    src={imageUrl} 
+                    alt={item.title} 
+                    className="business-news-image"
+                    onError={(e) => {
+                      e.target.src = 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400&h=250&fit=crop';
+                    }}
+                  />
+                  <div className="business-news-overlay">
+                    <h3 className="business-news-title">{item.title}</h3>
+                    {item.excerpt && (
+                      <p className="business-news-excerpt">{item.excerpt}</p>
+                    )}
+                    {item.published_date && (
+                      <span className="business-news-date">{formatDate(item.published_date)}</span>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
+      
+      {hasMoreNews && (
+        <div className="business-news-expand-section">
+          <button 
+            className="expand-business-news-btn"
+            onClick={toggleExpand}
+          >
+            {isExpanded ? 'Show Less' : 'Read More'}
+          </button>
+        </div>
+      )}
     </section>
   );
 };

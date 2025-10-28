@@ -70,6 +70,12 @@ const Header = () => {
                                     >
                                         <span>📊</span> Manage Dashboards
                                     </Link>
+                                    <Link 
+                                        to="/hero/manage"
+                                        className={`nav-link ${isActive('/hero/manage')}`}
+                                    >
+                                        <span>🎨</span> Hero Section
+                                    </Link>
                                 </>
                             )}
                         </>

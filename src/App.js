@@ -20,6 +20,7 @@ import NewsManagement from './components/NewsManagement';
 import NewsDetailPage from './pages/NewsDetailPage';
 import DashboardManagement from './components/DashboardManagement';
 import DashboardLinksPage from './pages/DashboardLinksPage';
+import HeroManagement from './components/HeroManagement';
 
 function App() {
   const [selectedEmployee, setSelectedEmployee] = useState(null);
@@ -80,6 +81,13 @@ function App() {
               <Route path="/dashboards/manage" element={
                 <PrivateRoute adminOnly={true}>
                   <DashboardManagement />
+                </PrivateRoute>
+              } />
+              
+              {/* Admin Only - Hero Section Management */}
+              <Route path="/hero/manage" element={
+                <PrivateRoute adminOnly={true}>
+                  <HeroManagement />
                 </PrivateRoute>
               } />
               

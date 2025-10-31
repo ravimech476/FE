@@ -59,12 +59,21 @@
   justify-content: center;
   font-size: 0.9rem;
   color: #333;
-  cursor: pointer;
   border-radius: 4px;
   transition: all 0.3s ease;
+  position: relative;
 }
 
-.calendar-day:hover:not(.empty) {
+.calendar-day.clickable {
+  cursor: pointer;
+}
+
+.calendar-day.clickable:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.calendar-day:hover:not(.empty):not(.clickable) {
   background: #fff5f2;
 }
 
@@ -72,16 +81,31 @@
   cursor: default;
 }
 
-.calendar-day.has-event {
+.calendar-day.has-upcoming-event {
   background: #e3f2ff;
   color: #1976d2;
   font-weight: 600;
 }
 
-.calendar-day.selected {
-  background: #1976d2;
-  color: white;
+.calendar-day.has-completed-event {
+  background: #f0f0f0;
+  color: #666;
   font-weight: 600;
+}
+
+.event-indicator {
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  background: #ff6b35;
+  border-radius: 50%;
+}
+
+.calendar-day.has-completed-event .event-indicator {
+  background: #999;
 }
 
 .calendar-day.today {
@@ -90,9 +114,17 @@
   font-weight: 600;
 }
 
-.upcoming-events {
+.events-list {
   border-top: 1px solid #eee;
   padding-top: 20px;
+  margin-top: 20px;
+}
+
+.events-list-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 15px;
 }
 
 .event-item {
@@ -108,7 +140,6 @@
 .event-date {
   width: 40px;
   height: 40px;
-  background: #ff6b35;
   color: white;
   border-radius: 8px;
   display: flex;
@@ -116,6 +147,15 @@
   justify-content: center;
   font-weight: 600;
   font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.event-date.upcoming {
+  background: #ff6b35;
+}
+
+.event-date.completed {
+  background: #999;
 }
 
 .event-details {
@@ -146,12 +186,19 @@
 }
 
 .event-badge {
-  background: #28a745;
   color: white;
   padding: 4px 8px;
   border-radius: 12px;
   font-size: 0.75rem;
   font-weight: 500;
+}
+
+.event-badge.upcoming {
+  background: #28a745;
+}
+
+.event-badge.completed {
+  background: #999;
 }
 
 .events-loading, .events-error, .no-events {
@@ -179,19 +226,146 @@
   background: #0056b3;
 }
 
-.reminder-btn {
-  padding: 6px 12px;
-  background: #4CAF50;
+/* Modal Styles */
+.event-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.event-modal {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
   color: white;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.modal-close {
+  background: none;
   border: none;
-  border-radius: 4px;
-  font-size: 0.85rem;
+  font-size: 2rem;
+  color: white;
   cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
   transition: background 0.3s ease;
 }
 
-.reminder-btn:hover {
-  background: #45a049;
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.modal-body {
+  padding: 20px;
+  max-height: calc(80vh - 80px);
+  overflow-y: auto;
+}
+
+.modal-event-item {
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  border-left: 4px solid #ff6b35;
+}
+
+.modal-event-item:last-child {
+  margin-bottom: 0;
+}
+
+.modal-event-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: white;
+}
+
+.modal-event-badge.upcoming {
+  background: #28a745;
+}
+
+.modal-event-badge.completed {
+  background: #999;
+}
+
+.modal-event-item h4 {
+  margin: 0 0 8px 0;
+  color: #333;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.modal-event-time {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0 0 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.modal-event-description {
+  color: #555;
+  font-size: 0.85rem;
+  margin: 0;
+  line-height: 1.5;
+  font-style: italic;
 }
 
 @media (max-width: 768px) {
@@ -201,5 +375,14 @@
   
   .calendar-day {
     font-size: 0.8rem;
+  }
+
+  .event-modal {
+    width: 95%;
+    max-width: none;
+  }
+
+  .modal-header h3 {
+    font-size: 0.95rem;
   }
 }

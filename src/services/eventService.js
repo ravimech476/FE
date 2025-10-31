@@ -34,6 +34,40 @@ const eventService = {
         }
     },
 
+    // Get completed events
+    getCompletedEvents: async (limit = 5) => {
+        try {
+            const response = await api.get(`/events/completed?limit=${limit}`);
+            return {
+                success: true,
+                data: response.data.data || response.data
+            };
+        } catch (error) {
+            console.error('Error fetching completed events:', error);
+            return {
+                success: false,
+                error: error.response?.data?.error || 'Failed to fetch completed events'
+            };
+        }
+    },
+
+    // Get events by month (for calendar)
+    getEventsByMonth: async (year, month) => {
+        try {
+            const response = await api.get(`/events/by-month?year=${year}&month=${month}`);
+            return {
+                success: true,
+                data: response.data.data || response.data
+            };
+        } catch (error) {
+            console.error('Error fetching events by month:', error);
+            return {
+                success: false,
+                error: error.response?.data?.error || 'Failed to fetch events for month'
+            };
+        }
+    },
+
     // Get single event
     getEvent: async (id) => {
         try {

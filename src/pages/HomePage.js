@@ -26,15 +26,19 @@ const HomePage = ({ setSelectedEmployee }) => {
             <BusinessNewsSection />
           </div>
         </div>
-        
-        
-        <div className="events-section-full">
-          <EventsSection />
-        </div>
 
-        <div className="events-section-full">
-          <SocialCorner />
+         <div className="main-content-grid">
+          <div className="left-column">
+           <EventsSection />
+          </div>
+          
+          <div className="right-column">
+            <SocialCorner />
+          </div>
         </div>
+        
+        
+       
         
         {/* <CompaniesSection /> */}
         <DashboardLinks />

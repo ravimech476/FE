@@ -7,6 +7,12 @@ const dashboardService = {
         return response.data;
     },
 
+    // Get all dashboard links for admin (includes inactive)
+    getAllLinksAdmin: async () => {
+        const response = await api.get('/dashboard/links/admin/all');
+        return response.data;
+    },
+
     // Get dashboard links grouped by category (public)
     getLinksByCategory: async () => {
         const response = await api.get('/dashboard/links-by-category');

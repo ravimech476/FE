@@ -45,7 +45,7 @@ const DashboardManagement = () => {
   const loadDashboards = async () => {
     try {
       setLoading(true);
-      const response = await dashboardService.getAllLinks();
+      const response = await dashboardService.getAllLinksAdmin();
       setDashboards(response.links || []);
     } catch (err) {
       console.error('Failed to load dashboards:', err);

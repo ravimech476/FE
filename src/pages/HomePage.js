@@ -27,8 +27,13 @@ const HomePage = ({ setSelectedEmployee }) => {
           </div>
         </div>
         
+        
         <div className="events-section-full">
           <EventsSection />
+        </div>
+
+        <div className="events-section-full">
+          <SocialCorner />
         </div>
         
         {/* <CompaniesSection /> */}
